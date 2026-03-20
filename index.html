@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cat Snake 🐱</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      body {
+        background: #1a1a2e;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        font-family: 'Segoe UI', sans-serif;
+        color: #fff;
+      }
+
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        letter-spacing: 2px;
+      }
+
+      #scoreboard {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+      }
+
+      #scoreboard span {
+        background: #16213e;
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        border: 1px solid #e94560;
+      }
+
+      canvas {
+        border: 3px solid #e94560;
+        border-radius: 8px;
+        background: #0f3460;
+        box-shadow: 0 0 30px rgba(233, 69, 96, 0.4);
+      }
+
+      #message {
+        margin-top: 1rem;
+        font-size: 1rem;
+        color: #e94560;
+        min-height: 1.5rem;
+        letter-spacing: 1px;
+      }
+
+      #controls {
+        margin-top: 0.8rem;
+        font-size: 0.85rem;
+        color: #888;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🐱 Cat Snake</h1>
+    <div id="scoreboard">
+      <span>Score: <b id="score">0</b></span>
+      <span>Best: <b id="best">0</b></span>
+    </div>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div id="message">Press ENTER or SPACE to start</div>
+    <div id="controls">Arrow Keys or WASD to move</div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
