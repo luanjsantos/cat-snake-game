@@ -3,7 +3,13 @@ import { Food } from './food';
 import { Renderer } from './renderer';
 
 const GRID_SIZE = 20;
-const BASE_SPEED = 150; // ms per tick
+const BASE_SPEED = 150; // ms per tick — starting speed
+const MIN_SPEED = 60;  // ms per tick — fastest possible
+
+function calcSpeed(snakeLength: number): number {
+  // Reduz 4ms por segmento, nunca abaixo de MIN_SPEED
+  return Math.max(MIN_SPEED, BASE_SPEED - (snakeLength - 3) * 4);
+}
 
 type GameState = 'idle' | 'running' | 'over';
 
@@ -64,7 +70,7 @@ export class Game {
     this.state = 'running';
 
     if (this.intervalId !== null) clearInterval(this.intervalId);
-    this.intervalId = setInterval(() => this.tick(), BASE_SPEED);
+    this.intervalId = setInterval(() => this.tick(), calcSpeed(this.snake.body.length));
   }
 
   private tick() {
@@ -87,6 +93,10 @@ export class Game {
       this.food.respawn(this.snake.body);
       this.score += 10;
       this.scoreEl.textContent = String(this.score);
+
+      // Restart interval com nova velocidade baseada no tamanho atual
+      if (this.intervalId !== null) clearInterval(this.intervalId);
+      this.intervalId = setInterval(() => this.tick(), calcSpeed(this.snake.body.length));
     }
 
     this.renderer.clear();
