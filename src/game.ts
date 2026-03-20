@@ -19,7 +19,7 @@ export class Game {
   private renderer: Renderer;
   private state: GameState = 'idle';
   private score = 0;
-  private best = 0;
+  private best = parseInt(localStorage.getItem('cat-snake-best') ?? '0', 10);
   private level = 1;
   private intervalId: ReturnType<typeof setInterval> | null = null;
 
@@ -37,6 +37,8 @@ export class Game {
     this.bestEl = document.getElementById('best')!;
     this.levelEl = document.getElementById('level')!;
     this.messageEl = document.getElementById('message')!;
+
+    this.bestEl.textContent = String(this.best);
 
     this.setupInput();
     this.renderer.clear();
@@ -123,6 +125,7 @@ export class Game {
     if (this.score > this.best) {
       this.best = this.score;
       this.bestEl.textContent = String(this.best);
+      localStorage.setItem('cat-snake-best', String(this.best));
     }
     this.renderer.drawGameOver(this.score);
     this.messageEl.textContent = '';
