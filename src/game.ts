@@ -20,10 +20,12 @@ export class Game {
   private state: GameState = 'idle';
   private score = 0;
   private best = 0;
+  private level = 1;
   private intervalId: ReturnType<typeof setInterval> | null = null;
 
   private scoreEl: HTMLElement;
   private bestEl: HTMLElement;
+  private levelEl: HTMLElement;
   private messageEl: HTMLElement;
 
   constructor(canvas: HTMLCanvasElement) {
@@ -33,6 +35,7 @@ export class Game {
 
     this.scoreEl = document.getElementById('score')!;
     this.bestEl = document.getElementById('best')!;
+    this.levelEl = document.getElementById('level')!;
     this.messageEl = document.getElementById('message')!;
 
     this.setupInput();
@@ -65,7 +68,9 @@ export class Game {
     this.snake = new Snake(10, 10);
     this.food = new Food(GRID_SIZE);
     this.score = 0;
+    this.level = 1;
     this.scoreEl.textContent = '0';
+    this.levelEl.textContent = '1';
     this.messageEl.textContent = '';
     this.state = 'running';
 
@@ -93,6 +98,13 @@ export class Game {
       this.food.respawn(this.snake.body);
       this.score += 10;
       this.scoreEl.textContent = String(this.score);
+
+      // Sobe de nível a cada 5 comidas
+      const newLevel = Math.floor((this.snake.body.length - 3) / 5) + 1;
+      if (newLevel > this.level) {
+        this.level = newLevel;
+        this.levelEl.textContent = String(this.level);
+      }
 
       // Restart interval com nova velocidade baseada no tamanho atual
       if (this.intervalId !== null) clearInterval(this.intervalId);
