@@ -5,6 +5,7 @@ import { Renderer } from './renderer';
 const GRID_SIZE = 20;
 const BASE_SPEED = 150; // ms per tick — starting speed
 const MIN_SPEED = 60;  // ms per tick — fastest possible
+const BOOST_SPEED = 40; // ms per tick — when holding direction key
 
 function calcSpeed(snakeLength: number): number {
   // Reduz 4ms por segmento, nunca abaixo de MIN_SPEED
@@ -21,6 +22,7 @@ export class Game {
   private score = 0;
   private best = parseInt(localStorage.getItem('cat-snake-best') ?? '0', 10);
   private level = 1;
+  private boosting = false;
   private intervalId: ReturnType<typeof setInterval> | null = null;
 
   private scoreEl: HTMLElement;
@@ -62,8 +64,27 @@ export class Game {
       if (this.state === 'running' && dirMap[e.key]) {
         this.snake.setDirection(dirMap[e.key]);
         e.preventDefault();
+
+        // Segurar a tecla de direção = boost
+        if (e.repeat && !this.boosting) {
+          this.boosting = true;
+          this.restartInterval();
+        }
       }
     });
+
+    document.addEventListener('keyup', (e) => {
+      if (dirMap[e.key] && this.boosting) {
+        this.boosting = false;
+        this.restartInterval();
+      }
+    });
+  }
+
+  private restartInterval() {
+    if (this.intervalId !== null) clearInterval(this.intervalId);
+    const speed = this.boosting ? BOOST_SPEED : calcSpeed(this.snake.body.length);
+    this.intervalId = setInterval(() => this.tick(), speed);
   }
 
   start() {
@@ -75,9 +96,8 @@ export class Game {
     this.levelEl.textContent = '1';
     this.messageEl.textContent = '';
     this.state = 'running';
-
-    if (this.intervalId !== null) clearInterval(this.intervalId);
-    this.intervalId = setInterval(() => this.tick(), calcSpeed(this.snake.body.length));
+    this.boosting = false;
+    this.restartInterval();
   }
 
   private tick() {
@@ -109,8 +129,7 @@ export class Game {
       }
 
       // Restart interval com nova velocidade baseada no tamanho atual
-      if (this.intervalId !== null) clearInterval(this.intervalId);
-      this.intervalId = setInterval(() => this.tick(), calcSpeed(this.snake.body.length));
+      this.restartInterval();
     }
 
     this.renderer.clear();
