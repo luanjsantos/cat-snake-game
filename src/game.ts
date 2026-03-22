@@ -103,11 +103,10 @@ export class Game {
   private tick() {
     const tail = this.snake.move();
 
-    // Wall collision
+    // Wall wrap-around — cobra atravessa a borda e aparece no lado oposto
     const head = this.snake.head;
-    if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
-      return this.gameOver();
-    }
+    head.x = (head.x + GRID_SIZE) % GRID_SIZE;
+    head.y = (head.y + GRID_SIZE) % GRID_SIZE;
 
     // Self collision
     if (this.snake.collidesWithSelf()) {
