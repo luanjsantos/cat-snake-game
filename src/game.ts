@@ -1,6 +1,7 @@
 import { Snake, type Direction } from './snake';
 import { Food } from './food';
 import { Renderer } from './renderer';
+import { Obstacle } from './obstacle';
 
 const GRID_SIZE = 20;
 const BASE_SPEED = 150; // ms per tick — starting speed
@@ -17,6 +18,7 @@ type GameState = 'idle' | 'running' | 'over';
 export class Game {
   private snake: Snake;
   private food: Food;
+  private obstacle: Obstacle;
   private renderer: Renderer;
   private state: GameState = 'idle';
   private score = 0;
@@ -34,6 +36,7 @@ export class Game {
     this.renderer = new Renderer(canvas, GRID_SIZE);
     this.snake = new Snake(10, 10);
     this.food = new Food(GRID_SIZE);
+    this.obstacle = new Obstacle([]);
 
     this.scoreEl = document.getElementById('score')!;
     this.bestEl = document.getElementById('best')!;
@@ -47,6 +50,7 @@ export class Game {
     this.renderer.drawGrid();
     this.renderer.drawSnake(this.snake);
     this.renderer.drawFood(this.food);
+    this.renderer.drawObstacles(this.obstacle);
   }
 
   private setupInput() {
@@ -87,9 +91,24 @@ export class Game {
     this.intervalId = setInterval(() => this.tick(), speed);
   }
 
+  // Células seguras para spawnar obstáculos: longe das bordas e do spawn da cobra (10,10)
+  private static SAFE_CELLS = [
+    {x:3,y:3},{x:3,y:10},{x:3,y:17},
+    {x:10,y:3},{x:10,y:17},
+    {x:17,y:3},{x:17,y:10},{x:17,y:17},
+    {x:5,y:7},{x:7,y:5},{x:13,y:5},{x:15,y:7},
+    {x:5,y:13},{x:7,y:15},{x:13,y:15},{x:15,y:13},
+  ];
+
+  private buildObstacle(count: number): Obstacle {
+    const shuffled = [...Game.SAFE_CELLS].sort(() => Math.random() - 0.5);
+    return new Obstacle(shuffled.slice(0, count));
+  }
+
   start() {
     this.snake = new Snake(10, 10);
     this.food = new Food(GRID_SIZE);
+    this.obstacle = new Obstacle([]);
     this.score = 0;
     this.level = 1;
     this.scoreEl.textContent = '0';
@@ -113,6 +132,11 @@ export class Game {
       return this.gameOver();
     }
 
+    // Obstacle collision
+    if (this.obstacle.collidesWith(head)) {
+      return this.gameOver();
+    }
+
     // Eat food
     if (head.x === this.food.position.x && head.y === this.food.position.y) {
       this.snake.grow(tail);
@@ -125,6 +149,9 @@ export class Game {
       if (newLevel > this.level) {
         this.level = newLevel;
         this.levelEl.textContent = String(this.level);
+        // Fase 2+: spawna obstáculos (2 por fase a partir do level 2)
+        const count = (this.level - 1) * 2;
+        this.obstacle = this.buildObstacle(count);
       }
 
       // Restart interval com nova velocidade baseada no tamanho atual
@@ -133,6 +160,7 @@ export class Game {
 
     this.renderer.clear();
     this.renderer.drawGrid();
+    this.renderer.drawObstacles(this.obstacle);
     this.renderer.drawSnake(this.snake);
     this.renderer.drawFood(this.food);
   }
