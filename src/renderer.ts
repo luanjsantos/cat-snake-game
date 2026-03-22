@@ -1,5 +1,6 @@
 import type { Snake } from './snake';
 import type { Food } from './food';
+import type { Obstacle } from './obstacle';
 
 const CELL = 20;
 
@@ -64,6 +65,17 @@ export class Renderer {
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'middle';
     this.ctx.fillText('🐟', x + CELL / 2, y + CELL / 2);
+  }
+
+  drawObstacles(obstacle: Obstacle) {
+    obstacle.positions.forEach(pos => {
+      const x = pos.x * CELL;
+      const y = pos.y * CELL;
+      this.ctx.font = `${CELL}px serif`;
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'middle';
+      this.ctx.fillText('🧱', x + CELL / 2, y + CELL / 2);
+    });
   }
 
   drawGameOver(score: number) {
