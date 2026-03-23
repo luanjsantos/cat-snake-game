@@ -13,7 +13,7 @@ function calcSpeed(snakeLength: number): number {
   return Math.max(MIN_SPEED, BASE_SPEED - (snakeLength - 3) * 4);
 }
 
-type GameState = 'idle' | 'running' | 'over';
+type GameState = 'idle' | 'running' | 'paused' | 'over';
 
 export class Game {
   private snake: Snake;
@@ -61,8 +61,12 @@ export class Game {
     };
 
     document.addEventListener('keydown', (e) => {
-      if ((e.key === 'Enter' || e.key === ' ') && this.state !== 'running') {
+      if ((e.key === 'Enter' || e.key === ' ') && this.state !== 'running' && this.state !== 'paused') {
         this.start();
+        return;
+      }
+      if (e.key === 'p' || e.key === 'P') {
+        this.togglePause();
         return;
       }
       if (this.state === 'running' && dirMap[e.key]) {
@@ -83,6 +87,18 @@ export class Game {
         this.restartInterval();
       }
     });
+  }
+
+  private togglePause() {
+    if (this.state === 'running') {
+      this.state = 'paused';
+      if (this.intervalId !== null) clearInterval(this.intervalId);
+      this.messageEl.textContent = '⏸ PAUSED — press P to resume';
+    } else if (this.state === 'paused') {
+      this.state = 'running';
+      this.messageEl.textContent = '';
+      this.restartInterval();
+    }
   }
 
   private restartInterval() {
