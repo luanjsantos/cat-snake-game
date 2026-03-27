@@ -13,7 +13,11 @@ function calcSpeed(snakeLength: number): number {
   return Math.max(MIN_SPEED, BASE_SPEED - (snakeLength - 3) * 4);
 }
 
-type GameState = 'idle' | 'running' | 'paused' | 'over';
+type GameState = 'idle' | 'countdown' | 'running' | 'paused' | 'over';
+
+const COUNTDOWN_STEPS = ['3', '2', '1', 'GO! 🐾'];
+const COUNTDOWN_INTERVAL_MS = 700;
+const COUNTDOWN_CLEAR_DELAY_MS = 400;
 
 export class Game {
   private snake: Snake;
@@ -61,7 +65,7 @@ export class Game {
     };
 
     document.addEventListener('keydown', (e) => {
-      if ((e.key === 'Enter' || e.key === ' ') && this.state !== 'running' && this.state !== 'paused') {
+      if ((e.key === 'Enter' || e.key === ' ') && this.state !== 'running' && this.state !== 'paused' && this.state !== 'countdown') {
         this.start();
         return;
       }
@@ -129,9 +133,30 @@ export class Game {
     this.level = 1;
     this.scoreEl.textContent = '0';
     this.levelEl.textContent = '1';
+    this.boosting = false;
+    this.startCountdown();
+  }
+
+  private startCountdown() {
+    this.state = 'countdown';
+    let step = 0;
+
+    const tick = () => {
+      this.messageEl.textContent = COUNTDOWN_STEPS[step];
+      step++;
+      if (step < COUNTDOWN_STEPS.length) {
+        setTimeout(tick, COUNTDOWN_INTERVAL_MS);
+      } else {
+        setTimeout(() => this.beginGame(), COUNTDOWN_CLEAR_DELAY_MS);
+      }
+    };
+
+    tick();
+  }
+
+  private beginGame() {
     this.messageEl.textContent = '';
     this.state = 'running';
-    this.boosting = false;
     this.restartInterval();
   }
 
