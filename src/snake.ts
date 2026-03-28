@@ -33,6 +33,23 @@ export class Snake {
     }
   }
 
+  reverse() {
+    this.body.reverse();
+
+    // Deduce new direction from the new head → next segment vector
+    const head = this.body[0];
+    const next = this.body[1];
+    const dx = head.x - next.x;
+    const dy = head.y - next.y;
+
+    if (dx === 1)       this.direction = 'RIGHT';
+    else if (dx === -1) this.direction = 'LEFT';
+    else if (dy === 1)  this.direction = 'DOWN';
+    else                this.direction = 'UP';
+
+    this.nextDirection = this.direction;
+  }
+
   move(): Point {
     this.direction = this.nextDirection;
 
