@@ -76,7 +76,16 @@ export class Game {
         return;
       }
       if (this.state === 'running' && dirMap[e.key]) {
-        this.snake.setDirection(dirMap[e.key]);
+        const opposites: Record<Direction, Direction> = {
+          UP: 'DOWN', DOWN: 'UP', LEFT: 'RIGHT', RIGHT: 'LEFT',
+        };
+        if (dirMap[e.key] === opposites[this.snake.direction]) {
+          this.snake.reverse();
+          this.boosting = false;
+          this.restartInterval();
+        } else {
+          this.snake.setDirection(dirMap[e.key]);
+        }
         e.preventDefault();
 
         // Segurar a tecla de direção = boost
