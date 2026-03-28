@@ -34,6 +34,7 @@ export class Game {
   private scoreEl: HTMLElement;
   private bestEl: HTMLElement;
   private levelEl: HTMLElement;
+  private lengthEl: HTMLElement;
   private messageEl: HTMLElement;
 
   constructor(canvas: HTMLCanvasElement) {
@@ -45,6 +46,7 @@ export class Game {
     this.scoreEl = document.getElementById('score')!;
     this.bestEl = document.getElementById('best')!;
     this.levelEl = document.getElementById('level')!;
+    this.lengthEl = document.getElementById('length')!;
     this.messageEl = document.getElementById('message')!;
 
     this.bestEl.textContent = String(this.best);
@@ -133,6 +135,7 @@ export class Game {
     this.level = 1;
     this.scoreEl.textContent = '0';
     this.levelEl.textContent = '1';
+    this.lengthEl.textContent = '3';
     this.boosting = false;
     this.startCountdown();
   }
@@ -184,6 +187,7 @@ export class Game {
       this.food.respawn(this.snake.body);
       this.score += 10;
       this.scoreEl.textContent = String(this.score);
+      this.lengthEl.textContent = String(this.snake.body.length);
 
       // Sobe de nível a cada 5 comidas
       const newLevel = Math.floor((this.snake.body.length - 3) / 5) + 1;
