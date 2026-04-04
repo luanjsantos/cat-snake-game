@@ -2,6 +2,7 @@ import { Snake, type Direction } from './snake';
 import { Food, FOOD_POINTS } from './food';
 import { Renderer } from './renderer';
 import { Obstacle } from './obstacle';
+import type { GameMode } from './menu';
 
 const GRID_SIZE = 20;
 const BASE_SPEED = 150; // ms per tick — starting speed
@@ -25,11 +26,14 @@ export class Game {
   private obstacle: Obstacle;
   private renderer: Renderer;
   private state: GameState = 'idle';
+  private mode: GameMode = 'endless';
   private score = 0;
   private best = parseInt(localStorage.getItem('cat-snake-best') ?? '0', 10);
   private level = 1;
   private boosting = false;
   private intervalId: ReturnType<typeof setInterval> | null = null;
+
+  onReturnToMenu: (() => void) | null = null;
 
   private scoreEl: HTMLElement;
   private bestEl: HTMLElement;
@@ -67,8 +71,11 @@ export class Game {
     };
 
     document.addEventListener('keydown', (e) => {
-      if ((e.key === 'Enter' || e.key === ' ') && this.state !== 'running' && this.state !== 'paused' && this.state !== 'countdown') {
-        this.start();
+      if ((e.key === 'Enter' || e.key === ' ') && this.state === 'over') {
+        this.onReturnToMenu?.();
+        return;
+      }
+      if ((e.key === 'Enter' || e.key === ' ') && this.state === 'idle') {
         return;
       }
       if (e.key === 'p' || e.key === 'P') {
@@ -136,7 +143,8 @@ export class Game {
     return new Obstacle(shuffled.slice(0, count));
   }
 
-  start() {
+  start(mode: GameMode = 'endless') {
+    this.mode = mode;
     this.snake = new Snake(10, 10);
     this.food = new Food(GRID_SIZE);
     this.obstacle = new Obstacle([]);
@@ -229,6 +237,6 @@ export class Game {
       localStorage.setItem('cat-snake-best', String(this.best));
     }
     this.renderer.drawGameOver(this.score);
-    this.messageEl.textContent = '';
+    this.messageEl.textContent = 'Press ENTER to return to menu';
   }
 }
