@@ -20,6 +20,11 @@ const COUNTDOWN_STEPS = ['3', '2', '1', 'GO! 🐾'];
 const COUNTDOWN_INTERVAL_MS = 700;
 const COUNTDOWN_CLEAR_DELAY_MS = 400;
 
+const BEST_SCORE_KEY: Record<GameMode, string> = {
+  endless: 'cat-snake-best-endless',
+  stage: 'cat-snake-best-stage',
+};
+
 export class Game {
   private snake: Snake;
   private food: Food;
@@ -28,7 +33,7 @@ export class Game {
   private state: GameState = 'idle';
   private mode: GameMode = 'endless';
   private score = 0;
-  private best = parseInt(localStorage.getItem('cat-snake-best') ?? '0', 10);
+  private best = 0;
   private level = 1;
   private boosting = false;
   private intervalId: ReturnType<typeof setInterval> | null = null;
@@ -40,6 +45,7 @@ export class Game {
   private levelEl: HTMLElement;
   private lengthEl: HTMLElement;
   private messageEl: HTMLElement;
+  private modeEl: HTMLElement;
 
   constructor(canvas: HTMLCanvasElement) {
     this.renderer = new Renderer(canvas, GRID_SIZE);
@@ -52,8 +58,7 @@ export class Game {
     this.levelEl = document.getElementById('level')!;
     this.lengthEl = document.getElementById('length')!;
     this.messageEl = document.getElementById('message')!;
-
-    this.bestEl.textContent = String(this.best);
+    this.modeEl = document.getElementById('mode-badge')!;
 
     this.setupInput();
     this.renderer.clear();
@@ -72,7 +77,11 @@ export class Game {
 
     document.addEventListener('keydown', (e) => {
       if ((e.key === 'Enter' || e.key === ' ') && this.state === 'over') {
-        this.onReturnToMenu?.();
+        this.returnToMenu();
+        return;
+      }
+      if (e.key === 'Escape' && (this.state === 'running' || this.state === 'paused' || this.state === 'countdown')) {
+        this.returnToMenu();
         return;
       }
       if ((e.key === 'Enter' || e.key === ' ') && this.state === 'idle') {
@@ -145,6 +154,7 @@ export class Game {
 
   start(mode: GameMode = 'endless') {
     this.mode = mode;
+    this.best = parseInt(localStorage.getItem(BEST_SCORE_KEY[mode]) ?? '0', 10);
     this.snake = new Snake(10, 10);
     this.food = new Food(GRID_SIZE);
     this.obstacle = new Obstacle([]);
@@ -153,6 +163,8 @@ export class Game {
     this.scoreEl.textContent = '0';
     this.levelEl.textContent = '1';
     this.lengthEl.textContent = '3';
+    this.bestEl.textContent = String(this.best);
+    this.modeEl.textContent = mode === 'endless' ? '♾️ ENDLESS' : '🏆 STAGE';
     this.boosting = false;
     this.startCountdown();
   }
@@ -207,14 +219,15 @@ export class Game {
       this.scoreEl.textContent = String(this.score);
       this.lengthEl.textContent = String(this.snake.body.length);
 
-      // Sobe de nível a cada 5 comidas
-      const newLevel = Math.floor((this.snake.body.length - 3) / 5) + 1;
-      if (newLevel > this.level) {
-        this.level = newLevel;
-        this.levelEl.textContent = String(this.level);
-        // Fase 2+: spawna obstáculos (2 por fase a partir do level 2)
-        const count = (this.level - 1) * 2;
-        this.obstacle = this.buildObstacle(count);
+      if (this.mode === 'endless') {
+        // Level up every 5 foods eaten — obstacles grow with each level
+        const newLevel = Math.floor((this.snake.body.length - 3) / 5) + 1;
+        if (newLevel > this.level) {
+          this.level = newLevel;
+          this.levelEl.textContent = String(this.level);
+          const count = (this.level - 1) * 2;
+          this.obstacle = this.buildObstacle(count);
+        }
       }
 
       // Restart interval com nova velocidade baseada no tamanho atual
@@ -234,9 +247,18 @@ export class Game {
     if (this.score > this.best) {
       this.best = this.score;
       this.bestEl.textContent = String(this.best);
-      localStorage.setItem('cat-snake-best', String(this.best));
+      localStorage.setItem(BEST_SCORE_KEY[this.mode], String(this.best));
     }
     this.renderer.drawGameOver(this.score);
-    this.messageEl.textContent = 'Press ENTER to return to menu';
+    this.messageEl.textContent = 'Press ENTER for menu — ESC anytime to quit';
+  }
+
+  private returnToMenu() {
+    if (this.intervalId !== null) clearInterval(this.intervalId);
+    this.state = 'idle';
+    this.messageEl.textContent = '';
+    this.renderer.clear();
+    this.renderer.drawGrid();
+    this.onReturnToMenu?.();
   }
 }

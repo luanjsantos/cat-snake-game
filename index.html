@@ -39,6 +39,16 @@
         border: 1px solid #e94560;
       }
 
+      #mode-badge {
+        background: #16213e;
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        border: 1px solid #bf00ff;
+        color: #bf00ff;
+        font-weight: bold;
+        letter-spacing: 1px;
+      }
+
       canvas {
         border: 3px solid #e94560;
         border-radius: 8px;
@@ -166,6 +176,25 @@
         color: #aaa;
       }
 
+      #menu-play-btn {
+        margin-top: 0.5rem;
+        padding: 0.8rem 3rem;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 3px;
+        background: #e94560;
+        color: #fff;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        box-shadow: 0 0 20px rgba(233, 69, 96, 0.5);
+        transition: transform 0.1s, box-shadow 0.1s;
+      }
+      #menu-play-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 30px rgba(233, 69, 96, 0.8);
+      }
+
       #menu-hint {
         font-size: 0.8rem;
         color: #555;
@@ -200,12 +229,15 @@
         <div id="mode-description"></div>
       </div>
 
-      <div id="menu-hint"><b>← →</b> to choose &nbsp;|&nbsp; <b>ENTER</b> to play</div>
+      <button id="menu-play-btn">▶ PLAY</button>
+
+      <div id="menu-hint"><b>← →</b> to choose &nbsp;|&nbsp; <b>ENTER</b> or click to play</div>
     </div>
 
     <!-- ── Game UI ── -->
     <h1>🐱 Cat Snake</h1>
     <div id="scoreboard">
+      <span id="mode-badge">♾️ ENDLESS</span>
       <span>Score: <b id="score">0</b></span>
       <span>Level: <b id="level">1</b></span>
       <span>Length: <b id="length">3</b></span>
@@ -213,7 +245,7 @@
     </div>
     <canvas id="gameCanvas" width="400" height="400"></canvas>
     <div id="message"></div>
-    <div id="controls">Arrow Keys or WASD to move &nbsp;|&nbsp; Hold to boost 🚀 &nbsp;|&nbsp; P to pause ⏸</div>
+    <div id="controls">Arrow Keys or WASD to move &nbsp;|&nbsp; Hold to boost 🚀 &nbsp;|&nbsp; P pause ⏸ &nbsp;|&nbsp; ESC menu</div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
