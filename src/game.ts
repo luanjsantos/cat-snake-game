@@ -1,5 +1,5 @@
 import { Snake, type Direction } from './snake';
-import { Food } from './food';
+import { Food, FOOD_POINTS } from './food';
 import { Renderer } from './renderer';
 import { Obstacle } from './obstacle';
 
@@ -192,9 +192,10 @@ export class Game {
 
     // Eat food
     if (head.x === this.food.position.x && head.y === this.food.position.y) {
+      const points = FOOD_POINTS[this.food.type];
       this.snake.grow(tail);
       this.food.respawn(this.snake.body);
-      this.score += 10;
+      this.score += points;
       this.scoreEl.textContent = String(this.score);
       this.lengthEl.textContent = String(this.snake.body.length);
 

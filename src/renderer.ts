@@ -1,5 +1,6 @@
 import type { Snake } from './snake';
 import type { Food } from './food';
+import { FOOD_EMOJI } from './food';
 import type { Obstacle } from './obstacle';
 
 const CELL = 20;
@@ -64,7 +65,7 @@ export class Renderer {
     this.ctx.font = `${CELL}px serif`;
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'middle';
-    this.ctx.fillText('🐟', x + CELL / 2, y + CELL / 2);
+    this.ctx.fillText(FOOD_EMOJI[food.type], x + CELL / 2, y + CELL / 2);
   }
 
   drawObstacles(obstacle: Obstacle) {
