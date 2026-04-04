@@ -60,9 +60,150 @@
         font-size: 0.85rem;
         color: #888;
       }
+
+      /* ── Menu Overlay ── */
+      #menu-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 15, 30, 0.97);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
+        z-index: 100;
+        transition: opacity 0.2s;
+      }
+      #menu-overlay.hidden {
+        display: none;
+      }
+
+      #menu-title {
+        font-size: 2.8rem;
+        font-weight: 900;
+        letter-spacing: 4px;
+        color: #fff;
+        text-shadow: 0 0 20px #e94560, 0 0 40px #e94560;
+      }
+
+      #menu-subtitle {
+        font-size: 0.9rem;
+        color: #888;
+        letter-spacing: 2px;
+        margin-top: -1.5rem;
+      }
+
+      #mode-cards {
+        display: flex;
+        gap: 1.5rem;
+      }
+
+      .mode-card {
+        width: 180px;
+        padding: 1.8rem 1.2rem;
+        border-radius: 16px;
+        border: 2px solid #333;
+        background: #16213e;
+        cursor: pointer;
+        text-align: center;
+        transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      .mode-card .card-emoji {
+        font-size: 2.8rem;
+        line-height: 1;
+      }
+
+      .mode-card .card-title {
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: #ccc;
+      }
+
+      .mode-card.selected {
+        border-color: #e94560;
+        box-shadow: 0 0 24px rgba(233, 69, 96, 0.5);
+        transform: translateY(-4px);
+      }
+      .mode-card.selected .card-title {
+        color: #e94560;
+      }
+
+      #mode-info {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.4rem;
+        min-height: 80px;
+      }
+
+      #mode-emoji {
+        font-size: 2.2rem;
+        line-height: 1;
+      }
+
+      #mode-label {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #e94560;
+        letter-spacing: 3px;
+      }
+
+      #mode-description {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.1rem;
+      }
+      #mode-description span {
+        font-size: 0.82rem;
+        color: #aaa;
+      }
+
+      #menu-hint {
+        font-size: 0.8rem;
+        color: #555;
+        letter-spacing: 1px;
+      }
+      #menu-hint b {
+        color: #888;
+      }
     </style>
   </head>
   <body>
+
+    <!-- ── Menu Overlay ── -->
+    <div id="menu-overlay">
+      <div id="menu-title">🐱 CAT SNAKE</div>
+      <div id="menu-subtitle">SELECT A MODE</div>
+
+      <div id="mode-cards">
+        <div class="mode-card" id="mode-card-endless">
+          <span class="card-emoji">♾️</span>
+          <span class="card-title">ENDLESS</span>
+        </div>
+        <div class="mode-card" id="mode-card-stage">
+          <span class="card-emoji">🏆</span>
+          <span class="card-title">STAGE MODE</span>
+        </div>
+      </div>
+
+      <div id="mode-info">
+        <div id="mode-emoji"></div>
+        <div id="mode-label"></div>
+        <div id="mode-description"></div>
+      </div>
+
+      <div id="menu-hint"><b>← →</b> to choose &nbsp;|&nbsp; <b>ENTER</b> to play</div>
+    </div>
+
+    <!-- ── Game UI ── -->
     <h1>🐱 Cat Snake</h1>
     <div id="scoreboard">
       <span>Score: <b id="score">0</b></span>
@@ -71,8 +212,8 @@
       <span>Best: <b id="best">0</b></span>
     </div>
     <canvas id="gameCanvas" width="400" height="400"></canvas>
-    <div id="message">Press ENTER or SPACE to start</div>
-    <div id="controls">Arrow Keys or WASD to move &nbsp;|&nbsp; Hold direction key to boost 🚀 &nbsp;|&nbsp; P to pause ⏸</div>
+    <div id="message"></div>
+    <div id="controls">Arrow Keys or WASD to move &nbsp;|&nbsp; Hold to boost 🚀 &nbsp;|&nbsp; P to pause ⏸</div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
