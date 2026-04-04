@@ -47,6 +47,25 @@ export class Menu {
         this.onConfirm(this.selectedMode);
       }
     });
+
+    MODES.forEach((mode, i) => {
+      const card = document.getElementById(`mode-card-${mode}`)!;
+      card.addEventListener('click', () => {
+        if (this.selectedIndex === i) {
+          // Already selected — confirm on second click
+          this.hide();
+          this.onConfirm(this.selectedMode);
+        } else {
+          this.selectedIndex = i;
+          this.render();
+        }
+      });
+    });
+
+    document.getElementById('menu-play-btn')!.addEventListener('click', () => {
+      this.hide();
+      this.onConfirm(this.selectedMode);
+    });
   }
 
   show(): void {
