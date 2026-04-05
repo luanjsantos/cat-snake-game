@@ -46,6 +46,7 @@ export class Game {
   private lengthEl: HTMLElement;
   private messageEl: HTMLElement;
   private modeEl: HTMLElement;
+  private pauseOverlay: HTMLElement;
 
   constructor(canvas: HTMLCanvasElement) {
     this.renderer = new Renderer(canvas, GRID_SIZE);
@@ -59,8 +60,10 @@ export class Game {
     this.lengthEl = document.getElementById('length')!;
     this.messageEl = document.getElementById('message')!;
     this.modeEl = document.getElementById('mode-badge')!;
+    this.pauseOverlay = document.getElementById('pause-overlay')!;
 
     this.setupInput();
+    this.setupPauseButtons();
     this.renderer.clear();
     this.renderer.drawGrid();
     this.renderer.drawSnake(this.snake);
@@ -80,15 +83,15 @@ export class Game {
         this.returnToMenu();
         return;
       }
-      if (e.key === 'Escape' && (this.state === 'running' || this.state === 'paused' || this.state === 'countdown')) {
-        this.returnToMenu();
-        return;
-      }
       if ((e.key === 'Enter' || e.key === ' ') && this.state === 'idle') {
         return;
       }
-      if (e.key === 'p' || e.key === 'P') {
-        this.togglePause();
+      if (e.key === 'Escape' && this.state === 'running') {
+        this.pause();
+        return;
+      }
+      if (e.key === 'Escape' && this.state === 'paused') {
+        this.resume();
         return;
       }
       if (this.state === 'running' && dirMap[e.key]) {
@@ -113,23 +116,43 @@ export class Game {
     });
 
     document.addEventListener('keyup', (e) => {
-      if (dirMap[e.key] && this.boosting) {
+      if (dirMap[e.key] && this.boosting && this.state === 'running') {
         this.boosting = false;
         this.restartInterval();
       }
     });
   }
 
-  private togglePause() {
-    if (this.state === 'running') {
-      this.state = 'paused';
-      if (this.intervalId !== null) clearInterval(this.intervalId);
-      this.messageEl.textContent = '⏸ PAUSED — press P to resume';
-    } else if (this.state === 'paused') {
-      this.state = 'running';
-      this.messageEl.textContent = '';
-      this.restartInterval();
-    }
+  private pause() {
+    this.state = 'paused';
+    if (this.intervalId !== null) clearInterval(this.intervalId);
+    this.pauseOverlay.classList.remove('hidden');
+    this.messageEl.textContent = '';
+  }
+
+  private resume() {
+    this.state = 'running';
+    this.pauseOverlay.classList.add('hidden');
+    this.messageEl.textContent = '';
+    this.restartInterval();
+  }
+
+  private setupPauseButtons() {
+    document.getElementById('pause-resume')!.addEventListener('click', () => {
+      if (this.state === 'paused') this.resume();
+    });
+    document.getElementById('pause-restart')!.addEventListener('click', () => {
+      if (this.state === 'paused') {
+        this.pauseOverlay.classList.add('hidden');
+        this.start(this.mode);
+      }
+    });
+    document.getElementById('pause-exit')!.addEventListener('click', () => {
+      if (this.state === 'paused') {
+        this.pauseOverlay.classList.add('hidden');
+        this.returnToMenu();
+      }
+    });
   }
 
   private restartInterval() {
@@ -243,6 +266,7 @@ export class Game {
 
   private gameOver() {
     this.state = 'over';
+    this.boosting = false;
     if (this.intervalId !== null) clearInterval(this.intervalId);
     if (this.score > this.best) {
       this.best = this.score;
@@ -257,6 +281,7 @@ export class Game {
     if (this.intervalId !== null) clearInterval(this.intervalId);
     this.state = 'idle';
     this.messageEl.textContent = '';
+    this.pauseOverlay.classList.add('hidden');
     this.renderer.clear();
     this.renderer.drawGrid();
     this.onReturnToMenu?.();
