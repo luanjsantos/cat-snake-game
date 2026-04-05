@@ -3,27 +3,29 @@ import { Food, FOOD_POINTS } from './food';
 import { Renderer } from './renderer';
 import { Obstacle } from './obstacle';
 import type { GameMode } from './menu';
-
-const GRID_SIZE = 20;
-const BASE_SPEED = 150; // ms per tick — starting speed
-const MIN_SPEED = 60;  // ms per tick — fastest possible
-const BOOST_SPEED = 40; // ms per tick — when holding direction key
+import {
+  GRID_SIZE,
+  SNAKE_SPAWN_X,
+  SNAKE_SPAWN_Y,
+  INITIAL_SNAKE_LENGTH,
+  BASE_SPEED,
+  MIN_SPEED,
+  BOOST_SPEED,
+  SPEED_DECREMENT_PER_SEGMENT,
+  COUNTDOWN_STEPS,
+  COUNTDOWN_INTERVAL_MS,
+  COUNTDOWN_CLEAR_DELAY_MS,
+  FOODS_PER_LEVEL,
+  OBSTACLES_PER_LEVEL,
+  BEST_SCORE_KEY,
+  MODE_BADGE_LABEL,
+} from './constants';
 
 function calcSpeed(snakeLength: number): number {
-  // Reduz 4ms por segmento, nunca abaixo de MIN_SPEED
-  return Math.max(MIN_SPEED, BASE_SPEED - (snakeLength - 3) * 4);
+  return Math.max(MIN_SPEED, BASE_SPEED - (snakeLength - INITIAL_SNAKE_LENGTH) * SPEED_DECREMENT_PER_SEGMENT);
 }
 
 type GameState = 'idle' | 'countdown' | 'running' | 'paused' | 'over';
-
-const COUNTDOWN_STEPS = ['3', '2', '1', 'GO! 🐾'];
-const COUNTDOWN_INTERVAL_MS = 700;
-const COUNTDOWN_CLEAR_DELAY_MS = 400;
-
-const BEST_SCORE_KEY: Record<GameMode, string> = {
-  endless: 'cat-snake-best-endless',
-  stage: 'cat-snake-best-stage',
-};
 
 export class Game {
   private snake: Snake;
@@ -50,7 +52,7 @@ export class Game {
 
   constructor(canvas: HTMLCanvasElement) {
     this.renderer = new Renderer(canvas, GRID_SIZE);
-    this.snake = new Snake(10, 10);
+    this.snake = new Snake(SNAKE_SPAWN_X, SNAKE_SPAWN_Y);
     this.food = new Food(GRID_SIZE);
     this.obstacle = new Obstacle([]);
 
@@ -178,16 +180,16 @@ export class Game {
   start(mode: GameMode = 'endless') {
     this.mode = mode;
     this.best = parseInt(localStorage.getItem(BEST_SCORE_KEY[mode]) ?? '0', 10);
-    this.snake = new Snake(10, 10);
+    this.snake = new Snake(SNAKE_SPAWN_X, SNAKE_SPAWN_Y);
     this.food = new Food(GRID_SIZE);
     this.obstacle = new Obstacle([]);
     this.score = 0;
     this.level = 1;
     this.scoreEl.textContent = '0';
     this.levelEl.textContent = '1';
-    this.lengthEl.textContent = '3';
+    this.lengthEl.textContent = String(INITIAL_SNAKE_LENGTH);
     this.bestEl.textContent = String(this.best);
-    this.modeEl.textContent = mode === 'endless' ? '♾️ ENDLESS' : '🏆 STAGE';
+    this.modeEl.textContent = MODE_BADGE_LABEL[mode];
     this.boosting = false;
     this.startCountdown();
   }
@@ -243,13 +245,11 @@ export class Game {
       this.lengthEl.textContent = String(this.snake.body.length);
 
       if (this.mode === 'endless') {
-        // Level up every 5 foods eaten — obstacles grow with each level
-        const newLevel = Math.floor((this.snake.body.length - 3) / 5) + 1;
+        const newLevel = Math.floor((this.snake.body.length - INITIAL_SNAKE_LENGTH) / FOODS_PER_LEVEL) + 1;
         if (newLevel > this.level) {
           this.level = newLevel;
           this.levelEl.textContent = String(this.level);
-          const count = (this.level - 1) * 2;
-          this.obstacle = this.buildObstacle(count);
+          this.obstacle = this.buildObstacle((this.level - 1) * OBSTACLES_PER_LEVEL);
         }
       }
 
