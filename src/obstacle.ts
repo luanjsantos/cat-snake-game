@@ -1,4 +1,4 @@
-import type { Point } from './snake';
+import type { Point } from './types';
 
 export class Obstacle {
   positions: Point[];

@@ -1,17 +1,14 @@
-import { Snake, type Direction } from './snake';
+import { Snake } from './snake';
 import { Food, FOOD_POINTS } from './food';
 import { Renderer } from './renderer';
 import { Obstacle } from './obstacle';
-import type { GameMode } from './menu';
+import type { Direction, GameMode, GameState } from './types';
+import { getIntervalSpeed } from './utils';
 import {
   GRID_SIZE,
   SNAKE_SPAWN_X,
   SNAKE_SPAWN_Y,
   INITIAL_SNAKE_LENGTH,
-  BASE_SPEED,
-  MIN_SPEED,
-  BOOST_SPEED,
-  SPEED_DECREMENT_PER_SEGMENT,
   COUNTDOWN_STEPS,
   COUNTDOWN_INTERVAL_MS,
   COUNTDOWN_CLEAR_DELAY_MS,
@@ -20,12 +17,6 @@ import {
   BEST_SCORE_KEY,
   MODE_BADGE_LABEL,
 } from './constants';
-
-function calcSpeed(snakeLength: number): number {
-  return Math.max(MIN_SPEED, BASE_SPEED - (snakeLength - INITIAL_SNAKE_LENGTH) * SPEED_DECREMENT_PER_SEGMENT);
-}
-
-type GameState = 'idle' | 'countdown' | 'running' | 'paused' | 'over';
 
 export class Game {
   private snake: Snake;
@@ -159,8 +150,7 @@ export class Game {
 
   private restartInterval() {
     if (this.intervalId !== null) clearInterval(this.intervalId);
-    const speed = this.boosting ? BOOST_SPEED : calcSpeed(this.snake.body.length);
-    this.intervalId = setInterval(() => this.tick(), speed);
+    this.intervalId = setInterval(() => this.tick(), getIntervalSpeed(this.snake.body.length, this.boosting));
   }
 
   // Células seguras para spawnar obstáculos: longe das bordas e do spawn da cobra (10,10)
