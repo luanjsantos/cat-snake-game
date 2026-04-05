@@ -1,6 +1,4 @@
-import type { Point } from './snake';
-
-export type FoodType = 'fish' | 'shrimp' | 'milk';
+import type { Point, FoodType } from './types';
 
 export const FOOD_EMOJI: Record<FoodType, string> = {
   fish: '🐟',

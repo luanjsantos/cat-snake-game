@@ -1,4 +1,4 @@
-export type GameMode = 'endless' | 'stage';
+import type { GameMode } from './types';
 
 const MODES: GameMode[] = ['endless', 'stage'];
 
